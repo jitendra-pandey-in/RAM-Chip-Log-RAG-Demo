@@ -21,7 +21,6 @@ This project indexes a pre-existing log file, retrieves the most relevant chunks
 
 ```text
 RAM-Chip-Log-RAG-Demo/
-  requirements.txt
   data/
     ram_log.txt
   backend/
@@ -30,6 +29,7 @@ RAM-Chip-Log-RAG-Demo/
     main.py
   frontend/
     app.py
+  requirements.txt
 ```
 
 ## Prerequisites
