@@ -47,7 +47,7 @@ ram_log_rag/
 
 Pull them once:
 
-```powershell
+```command
 ollama pull llama3.2:3b
 ollama pull qwen2.5:7b
 ```
@@ -56,20 +56,20 @@ ollama pull qwen2.5:7b
 
 ### 1) Create and activate a virtual environment
 
-```powershell
+```command
 python -m venv .venv
 .venv\Scripts\activate
 ```
 
 ### 2) Install backend dependencies
 
-```powershell
+```command
 pip install -r backend\requirements.txt
 ```
 
 ### 3) Install frontend dependencies
 
-```powershell
+```command
 pip install -r frontend\requirements.txt
 ```
 
@@ -85,9 +85,8 @@ data/ram_log.txt
 
 Build the FAISS index from your log file:
 
-```powershell
-cd C:\RAG-Demo\backend
-python index.py
+```command
+python backend/index.py
 ```
 
 This creates the vector index used by the backend for retrieval.
@@ -98,41 +97,26 @@ This creates the vector index used by the backend for retrieval.
 
 In Windows Command Prompt:
 
-```powershell
+```command
 set RUN_MODE=cpu
-cd C:\RAG-Demo\backend
-uvicorn main:app --host 0.0.0.0 --port 8000
+uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
 
 ### 2B) GPU mode
 
 In Windows Command Prompt:
 
-```powershell
+```command
 set RUN_MODE=gpu
-cd C:\RAG-Demo\backend
-uvicorn main:app --host 0.0.0.0 --port 8000
-```
-
-If needed, you can also set the model explicitly:
-
-```powershell
-set OLLAMA_MODEL=llama3.2:3b
-```
-
-or
-
-```powershell
-set OLLAMA_MODEL=qwen2.5:7b
+uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
 
 ## Step 3: Run the Front-End App
 
 Then start Streamlit:
 
-```powershell
-cd C:\RAG-Demo\frontend
-streamlit run app.py
+```command
+streamlit run frontend/app.py
 ```
 
 Open the local Streamlit URL in your browser, usually:
@@ -145,8 +129,9 @@ http://localhost:8501
 
 Try these questions in the chat UI:
 
-- Question 1: How many entries are there in the log file?
-- Question 2: Provide the entry with the highest clock frequency?
+- Question 1: Provide the entry with the highest clock frequency?
+- Question 2: Which entry in the log file does not indicate any problems?
+- Question 3: Which configuration has thermal issues?
 
 ## API Endpoints
 

@@ -1,7 +1,7 @@
 # frontend/app.py
 # Author: Jitendra Pandey
-# Date Created: 2024-06-19
-# Date Modified: 2024-06-19
+# Date Created: 2026-07-12
+# Date Modified: 2026-07-12
 
 import os
 import requests

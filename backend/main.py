@@ -1,7 +1,7 @@
 # backend/main.py
 # Author: Jitendra Pandey
-# Date Created: 2024-06-19
-# Date Modified: 2024-06-19
+# Date Created: 2026-07-12
+# Date Modified: 2026-07-12
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
@@ -23,9 +23,10 @@ logger = logging.getLogger("uvicorn.error")
 
 app = FastAPI(title="RAM/Chip RAG API", debug=True)
 
-INDEX_PATH = Path(__file__).resolve().parent / "ram_index"
+PROJECT_ROOT = os.getenv("PROJECT_ROOT", os.getcwd())
+INDEX_PATH = Path(os.getenv("INDEX_PATH", os.path.join(PROJECT_ROOT, "backend", "ram_index")))
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-RUN_MODE = os.getenv("RUN_MODE").lower()
+RUN_MODE = os.getenv("RUN_MODE", "cpu").lower()
 
 MODEL_BY_MODE = {
     "cpu": "llama3.2:3b",
