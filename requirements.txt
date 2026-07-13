@@ -1,0 +1,10 @@
+faiss-cpu
+fastapi
+langchain
+langchain-community
+langchain-text-splitters
+langchain-core
+requests
+sentence-transformers
+streamlit
+uvicorn

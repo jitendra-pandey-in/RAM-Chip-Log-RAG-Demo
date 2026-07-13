@@ -61,16 +61,10 @@ python -m venv .venv
 .venv\Scripts\activate
 ```
 
-### 2) Install backend dependencies
+### 2) Install the dependencies
 
 ```command
-pip install -r backend\requirements.txt
-```
-
-### 3) Install frontend dependencies
-
-```command
-pip install -r frontend\requirements.txt
+pip install -r requirements.txt
 ```
 
 ### 4) Add your log file
@@ -91,23 +85,28 @@ python backend/index.py
 
 This creates the vector index used by the backend for retrieval.
 
-## Step 2: Set Environment Variable for CPU or GPU Mode
+## Step 2: Set Environment Variable for CPU or GPU Mode (Optional)
 
-### 2A) CPU mode
+This is an optional step. The application automatically determines if an Nvidia GPU is installed. If installed, it runs the RAG application on the GPU, else CPU is used. If a GPU is installed and you still want to test the application on CPU, set RUN_MODE to cpu.
+
+### 2A) Set CPU mode
 
 In Windows Command Prompt:
 
 ```command
 set RUN_MODE=cpu
-uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
 
-### 2B) GPU mode
+### 2B) Set GPU mode
 
 In Windows Command Prompt:
 
 ```command
 set RUN_MODE=gpu
+```
+
+## Step 3: Run the Back-End
+```command
 uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
 
