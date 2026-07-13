@@ -110,7 +110,7 @@ set RUN_MODE=gpu
 uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
 
-## Step 3: Run the Front-End App
+## Step 4: Run the Front-End App
 
 Then start Streamlit:
 
@@ -124,7 +124,7 @@ Open the local Streamlit URL in your browser, usually:
 http://localhost:8501
 ```
 
-## Step 4: Sample Questions
+## Step 5: Sample Questions
 
 Try these questions in the chat UI:
 
