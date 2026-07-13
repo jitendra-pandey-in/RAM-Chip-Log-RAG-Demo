@@ -1,9 +1,9 @@
 # backend/main.py
-# AUTHOR: JITENDRA PANDEY
-# DATE CREATED: 2026-07-12
-# DATE MODIFIED: 2026-07-13
+# Author: Jitendra Pandey
+# Date Created: 2026-07-12
+# Date Modified: 2026-07-13
 
-# IMPORT CORE STANDARD AND THIRD-PARTY FRAMEWORK MODULES
+# Import required libraries and frameworks
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -12,24 +12,24 @@ import logging
 import traceback
 import requests
 
-# IMPORT LANGCHAIN CORE AND INTEGRATION PIPELINES FOR BUILDING THE RAG WORKFLOW
+# Import LangChain core and integration pipelines for building the RAG workflow
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_community.llms import Ollama
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-# IMPORT LOCAL SYSTEM DESIGN CONFIGURATIONS FOR RAG
+# Import local system design configurations for RAG
 from backend.config import INDEX_PATH, OLLAMA_HOST, RUN_MODE, OLLAMA_MODEL
 
-# CONFIGURE LOGGING ROOT SKELETON TO MATCH FASTAPI UVICORN LOGGER OBJECTS
+# Configure logging root skeleton to match FastAPI Uvicorn logger objects
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("uvicorn.error")
 
-# INITIALIZE THE FASTAPI APP RUNTIME WITH DEBUG CONTROLS ENABLED
+# Initialize the FastAPI app runtime with debug controls enabled
 app = FastAPI(title="RAM/Chip RAG API", debug=True)
 
-# DEFINE THE SYSTEM PRE-PROMPT STRUCTURE AND STRUCTURAL VARIABLES FOR LLM RUNS
+# Define the system pre-prompt structure and structural variables for LLM runs
 prompt_template = PromptTemplate.from_template(
     "You are a helpful assistant. Use the context below to answer the user's question.\n"
     "If the context is insufficient, say so clearly.\n\n"
@@ -38,21 +38,21 @@ prompt_template = PromptTemplate.from_template(
     "Answer:"
 )
 
-# INITIALIZE STANDARD TEXT FORMATTER PARSER FOR THE CHAIN OUTPUT
+# Initialize standard text formatter parser for the chain output
 output_parser = StrOutputParser()
 
-# INSTANTIATE LOCAL HUGGINGFACE MODEL PIECE TO COMPUTE VECTOR EMBEDDINGS
+# Instantiate local HuggingFace model piece to compute vector embeddings
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
-# ESTABLISH OLLAMA LLM TARGET CONFIG WITH HOST TARGET AND TEMPERATURE PROFILE
+# Establish Ollama LLM target config with host target and temperature profile
 llm = Ollama(model=OLLAMA_MODEL, base_url=OLLAMA_HOST, temperature=0.2)
 
-# DECLARE GLOBAL REFS TO ALLOW ON-DEMAND LOADS ACROSS THE APP HOOKS
+# Declare global refs to allow on-demand loads across the app hooks
 vectorstore = None
 retriever = None
 qa_chain = None
 
-# HELPER ACTION FUNCTION TO TEST IF THE TARGET OLLAMA CORE IS ONLINE
+# Helper action function to test if the target Ollama core is online
 def check_ollama():
     try:
         r = requests.get(OLLAMA_HOST, timeout=5)
@@ -61,14 +61,14 @@ def check_ollama():
     except Exception:
         return False
 
-# FUNCTION SPECIFYING THE COMPUTATIONAL GRAPH FOR USER QUESTION PROCESSING
+# Function specifying the computational graph for user question processing
 def build_query_chain():
-    # LAMBDA-STYLE INLINE WORKER TO FETCH CONTEXT VIA THE RETRIEVER OBJ
+    # Lambda-style inline worker to fetch context via the retriever obj
     def get_context(x):
         docs = retriever.invoke(x["question"])
         return "\n\n".join(doc.page_content for doc in docs)
 
-    # LINK EVERYTHING USING THE LANGCHAIN EXPRESSION LANGUAGE (LCEL) PIPE PIPELINE
+    # Link everything using the LangChain Expression Language (LCEL) pipe pipeline
     chain = (
         {
             "context": get_context,
@@ -80,38 +80,38 @@ def build_query_chain():
     )
     return chain
 
-# ENGINE TO LOAD SERIALIZED VECTOR DATABASES FROM DISK INTO MEMORY STACK
+# Engine to load serialized vector databases from disk into memory stack
 def load_index():
     global vectorstore, retriever, qa_chain
 
-    # BUILD TARGET PATH IDENTIFIERS FOR THE LOCAL STORE ARCHIVES
+    # Build target path identifiers for the local store archives
     faiss_file = INDEX_PATH / "index.faiss"
     pkl_file = INDEX_PATH / "index.pkl"
 
-    # SAFE GUARD CHECKS TO VERIFY IF VECTOR STORES EXIST ON DISK SURFACE
+    # Safe guard checks to verify if vector stores exist on disk surface
     if not faiss_file.exists() or not pkl_file.exists():
         logger.warning("FAISS index files not found in %s", INDEX_PATH)
         return False
 
-    # READ FAISS ARCHIVES SAFELY BY ACKNOWLEDGING PICKLE RISK PROFILE
+    # Read FAISS archives safely by acknowledging pickle risk profile
     vectorstore = FAISS.load_local(
         str(INDEX_PATH),
         embeddings,
         allow_dangerous_deserialization=True,
     )
     
-    # CONFIGURE RETRIEVER HOOK TO EXTRACT THE TOP 3 MATCHING SOURCE RESULTS
+    # Configure retriever hook to extract the top 3 matching source results
     retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
     
-    # ASSEMBLE LCEL GRAPH PIPELINE COMPONENTS NOW THAT STORE IS VALID
+    # Assemble LCEL graph pipeline components now that store is valid
     qa_chain = build_query_chain()
     return True
 
-# APPLICATION STARTUP TRIGGER HOOK FOR RUNTIME PREREQ CHECKS
+# Application startup trigger hook for runtime prereq checks
 @app.on_event("startup")
 def startup_event():
     try:
-        # LOG WARNING NOTICES IF PRECONDITIONS ARE ABSENT OR UNRESPONSIVE
+        # Log warning notices if preconditions are absent or unresponsive
         if not check_ollama():
             logger.warning("Ollama is not reachable at %s", OLLAMA_HOST)
         if not load_index():
@@ -121,11 +121,11 @@ def startup_event():
     except Exception:
         logger.exception("Startup failed")
 
-# PYDANTIC MODEL ARCHITECTURE MAP TO CONTROL REQ STRUCTURE AND SCHEMAS
+# Pydantic model architecture map to control req structure and schemas
 class QueryRequest(BaseModel):
     question: str
 
-# API LIVE SYSTEM STATE HEALTH REPORT ENTRANCE HOOK
+# API live system state health report entrance hook
 @app.get("/health")
 def health():
     return {
@@ -136,17 +136,17 @@ def health():
         "index_loaded": qa_chain is not None and retriever is not None,
     }
 
-# PRIMARY ENDPOINT FOR PROCESSING INCOMING SEARCH QUESTIONS
+# Primary endpoint for processing incoming search questions
 @app.post("/query")
 def query(req: QueryRequest):
-    # ERROR EXIT STRATEGY IF THE VECTOR STORE FAILED OR DID NOT LOAD AT STARTUP
+    # Error exit strategy if the vector store failed or did not load at startup
     if qa_chain is None or retriever is None:
         return JSONResponse(
             {"error": "The FAISS index has not been built yet. Run backend/index.py first."},
             status_code=503,
         )
 
-    # ERROR EXIT STRATEGY IF THE DEPLOYED HOST FOR LLM GENERATION STAYS TIMED OUT
+    # Error exit strategy if the deployed host for LLM generation stays timed out
     if not check_ollama():
         return JSONResponse(
             {"error": f"Ollama is not reachable at {OLLAMA_HOST}"},
@@ -154,14 +154,14 @@ def query(req: QueryRequest):
         )
 
     try:
-        # EXECUTE FULL PROCESS FOR PROMPT COMBINATION + LLM PIPELINE PROCESSING
+        # Execute full process for prompt combination + LLM pipeline processing
         result = qa_chain.invoke({"question": req.question})
         
-        # EXTRACT SEPARATE ORIGINAL DOCUMENT CONTENT PARTS FOR FRONTEND REFERENCE VIEWING
+        # Extract separate original document content parts for frontend reference viewing
         docs = retriever.invoke(req.question)
         sources = [doc.page_content for doc in docs]
 
-        # DISPATCH COMPLETELY PROCESSED RAG BUNDLE PACKAGE TO THE USER
+        # Dispatch completely processed RAG bundle package to the user
         return JSONResponse(
             {
                 "answer": result,
@@ -171,7 +171,7 @@ def query(req: QueryRequest):
             }
         )
     except Exception as e:
-        # INTERCEPT FAULTS AND SHIP CLEAN ERROR DIAGNOSTIC BUNDLES FOR LOG VIEWERS
+        # Intercept faults and ship clean error diagnostic bundles for log viewers
         logger.exception("Exception in /query")
         return JSONResponse(
             {

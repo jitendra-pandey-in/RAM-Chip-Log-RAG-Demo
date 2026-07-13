@@ -20,17 +20,16 @@ This project indexes a pre-existing log file, retrieves the most relevant chunks
 ## Project Structure
 
 ```text
-ram_log_rag/
+RAM-Chip-Log-RAG-Demo/
+  requirements.txt
   data/
     ram_log.txt
   backend/
     config.py
     index.py
     main.py
-    requirements.txt
   frontend/
     app.py
-    requirements.txt
 ```
 
 ## Prerequisites
@@ -89,20 +88,10 @@ This creates the vector index used by the backend for retrieval.
 
 This is an optional step. The application automatically determines if an Nvidia GPU is installed. If installed, it runs the RAG application on the GPU, else CPU is used. If a GPU is installed and you still want to test the application on CPU, set RUN_MODE to cpu.
 
-### 2A) Set CPU mode
-
 In Windows Command Prompt:
 
 ```command
 set RUN_MODE=cpu
-```
-
-### 2B) Set GPU mode
-
-In Windows Command Prompt:
-
-```command
-set RUN_MODE=gpu
 ```
 
 ## Step 3: Run the Back-End
@@ -128,9 +117,9 @@ http://localhost:8501
 
 Try these questions in the chat UI:
 
-- Question 1: Provide the entry with the highest clock frequency?
-- Question 2: Which entry in the log file does not indicate any problems?
-- Question 3: Which configuration has thermal issues?
+- Question 1: What entries in the log do not indicate any problems?
+- Question 2: What entries in the log indicate problems?
+- Question 3: Among all problem entries, what entry has the lowest clock frequency?
 
 ## API Endpoints
 
